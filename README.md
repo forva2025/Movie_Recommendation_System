@@ -6,11 +6,32 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5%2B-F7931E.svg?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
 [![Pandas](https://img.shields.io/badge/pandas-2.2%2B-150458.svg?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Catalog](https://img.shields.io/badge/catalog-12%2C000_movies-6f42c1.svg)](data/movies.csv)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Open_App-FF4B4B.svg?logo=streamlit&logoColor=white)](https://movierecommendationsystem-ezhboy6gpd9jelnoqwytp2.streamlit.app/)
 [![GitHub last commit](https://img.shields.io/github/last-commit/forva2025/Movie_Recommendation_System)](https://github.com/forva2025/Movie_Recommendation_System/commits)
 [![GitHub issues](https://img.shields.io/github/issues/forva2025/Movie_Recommendation_System)](https://github.com/forva2025/Movie_Recommendation_System/issues)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A fast, content-based movie recommendation system with a searchable Streamlit interface and a bundled catalog of **12,000 movies**. Choose a film you enjoy and CineMatch ranks similar titles using genres, plot overviews, and taglines—without needing an account, API key, or internet connection.
+
+## Live demo
+
+The application is deployed on Streamlit Community Cloud:
+
+### [🚀 Launch the Movie Recommendation System](https://movierecommendationsystem-ezhboy6gpd9jelnoqwytp2.streamlit.app/)
+
+## Screenshots
+
+### Catalog dashboard
+
+![CineMatch dashboard showing the 12,000-movie catalog summary](docs/screenshots/cinematch-home.png)
+
+### Movie recommendations
+
+![CineMatch recommendations for The Matrix](docs/screenshots/cinematch-recommendations.png)
+
+### Recommendation filters
+
+![CineMatch sidebar with result count, genre, rating, and year filters](docs/screenshots/cinematch-filters.png)
 
 ## Features
 
