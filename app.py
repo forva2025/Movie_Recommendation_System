@@ -3,11 +3,54 @@
 from __future__ import annotations
 
 import html
+import os
+from pathlib import Path
 
 import pandas as pd
+import requests
 import streamlit as st
 
 from recommender import MovieRecommender
+
+
+TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
+POSTER_PLACEHOLDER = Path(__file__).resolve().parent / "assets" / "poster-placeholder.svg"
+
+
+def get_tmdb_token() -> str:
+    """Read a TMDB token from Streamlit secrets or the environment."""
+    token = os.getenv("TMDB_API_TOKEN", "")
+    try:
+        secret_token = st.secrets.get("TMDB_API_TOKEN", token)
+        token = str(secret_token) if secret_token else token
+    except Exception:  # No secrets file is normal during local development.
+        pass
+    return token.strip()
+
+
+@st.cache_data(ttl=86_400, show_spinner=False)
+def fetch_poster_url(movie_id: int, token: str) -> str | None:
+    """Fetch a current poster path from TMDB and cache it for one day."""
+    if not token:
+        return None
+    headers: dict[str, str] = {"accept": "application/json"}
+    params: dict[str, str] = {"language": "en-US"}
+    if token.startswith("eyJ"):
+        headers["Authorization"] = f"Bearer {token}"
+    else:
+        params["api_key"] = token
+    try:
+        response = requests.get(
+            f"https://api.themoviedb.org/3/movie/{movie_id}",
+            headers=headers,
+            params=params,
+            timeout=5,
+        )
+        response.raise_for_status()
+        poster_path = response.json().get("poster_path")
+    except (requests.RequestException, ValueError):
+        return None
+    return f"{TMDB_IMAGE_BASE_URL}{poster_path}" if poster_path else None
 
 
 st.set_page_config(page_title="CineMatch", page_icon="🎬", layout="wide")
@@ -31,6 +74,7 @@ def get_recommender() -> MovieRecommender:
 
 engine = get_recommender()
 movies = engine.movies
+tmdb_token = get_tmdb_token()
 st.title("🎬 CineMatch")
 st.caption("Content-based recommendations from a catalog of 12,000 movies")
 
@@ -55,6 +99,8 @@ with st.sidebar:
     )
     st.divider()
     st.caption("Similarity uses genres, plot overviews, and taglines. Ratings are filters, not ranking signals.")
+    if not tmdb_token:
+        st.info("Add `TMDB_API_TOKEN` to Streamlit secrets to display live movie posters.")
 
 st.subheader("Choose a movie you like")
 search = st.text_input(
@@ -95,17 +141,28 @@ else:
         overview = html.escape(movie.overview or "No overview is available for this title.")
         title = html.escape(str(movie.title))
         genres = html.escape(movie.genres.replace("|", " · "))
-        st.markdown(
-            f"""<div class="movie-card"><b>#{rank + 1} &nbsp; {title}</b>
-            <div class="muted">{year} · {runtime} · {genres} · ⭐ {movie.vote_average:.1f} · {movie.similarity:.0%} match</div>
-            <div style="margin-top:.5rem">{overview}</div></div>""",
-            unsafe_allow_html=True,
-        )
+        poster = fetch_poster_url(int(movie.movie_id), tmdb_token) or str(POSTER_PLACEHOLDER)
+        poster_column, details_column = st.columns([1, 4])
+        with poster_column:
+            st.image(poster, caption=movie.title, use_container_width=True)
+        with details_column:
+            st.markdown(
+                f"""<div class="movie-card"><b>#{rank + 1} &nbsp; {title}</b>
+                <div class="muted">{year} · {runtime} · {genres} · ⭐ {movie.vote_average:.1f} · {movie.similarity:.0%} match</div>
+                <div style="margin-top:.5rem">{overview}</div></div>""",
+                unsafe_allow_html=True,
+            )
 
 with st.expander("How recommendations are calculated"):
     st.markdown(
         """The engine turns each movie's genres, tagline, and plot overview into a TF-IDF vector.
         It compares the selected movie with eligible catalog entries using cosine similarity.
         Genre terms receive extra weight, and sidebar filters are applied before results appear.
-        No personal data or external API is required."""
+        Core recommendations require no personal data or API key; a TMDB token is only
+        used to retrieve current poster artwork."""
     )
+
+st.caption(
+    "Poster images provided by TMDB. This product uses the TMDB API but is not "
+    "endorsed or certified by TMDB."
+)

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="750" viewBox="0 0 500 750" role="img" aria-labelledby="title description">
+  <title id="title">Poster unavailable</title>
+  <desc id="description">A placeholder image for a movie without poster artwork.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#251c35"/>
+      <stop offset="1" stop-color="#111111"/>
+    </linearGradient>
+  </defs>
+  <rect width="500" height="750" rx="24" fill="url(#background)"/>
+  <g fill="none" stroke="#ff4b4b" stroke-width="18" stroke-linejoin="round">
+    <path d="M115 275h270v205H115z"/>
+    <path d="M115 275l55-85h270l-55 85z"/>
+    <path d="M195 190l-55 85M285 190l-55 85M375 190l-55 85"/>
+  </g>
+  <circle cx="250" cy="378" r="52" fill="#ff4b4b" opacity=".9"/>
+  <path d="M235 345l48 33-48 33z" fill="#fff"/>
+  <text x="250" y="555" fill="#f4f4f4" font-family="Arial, sans-serif" font-size="30" text-anchor="middle">POSTER UNAVAILABLE</text>
+</svg>

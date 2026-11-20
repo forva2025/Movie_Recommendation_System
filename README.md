@@ -40,9 +40,10 @@ The application is deployed on Streamlit Community Cloud:
 - **Search-as-you-type catalog lookup** with release years to distinguish duplicate titles
 - **Interactive filters** for genre, minimum rating, release-year range, and result count
 - **Transparent match percentages** and movie metadata for every recommendation
+- **Movie posters** fetched from TMDB, with a local placeholder when artwork is unavailable
 - **Memory-efficient queries** that calculate one similarity vector at a time rather than storing a full 12,000 × 12,000 matrix
 - **Reusable Python API** and command-line interface in addition to Streamlit
-- **Local-first operation** with no tracking, authentication, or external runtime services
+- **Graceful optional integration**—recommendations need no API key; posters use a TMDB token when configured
 
 ## Quick start
 
@@ -85,6 +86,28 @@ streamlit run app.py
 ```
 
 Open the local URL printed by Streamlit, usually `http://localhost:8501`.
+
+### 5. Enable movie posters
+
+Recommendations work without external credentials. To display current poster artwork, copy the example secrets file and add a TMDB v4 Read Access Token or v3 API key:
+
+```bash
+cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .streamlit/secrets.toml.example .streamlit/secrets.toml
+```
+
+Then edit `.streamlit/secrets.toml`:
+
+```toml
+TMDB_API_TOKEN = "your-tmdb-read-access-token"
+```
+
+For the deployed app, add `TMDB_API_TOKEN` under **Streamlit Community Cloud → App settings → Secrets**. The secret is used only by the server when requesting movie metadata and is never rendered in the browser.
 
 ## Using the app
 
@@ -156,6 +179,8 @@ Movie_Recommendation_System/
 ## Dataset
 
 The bundled catalog is a cleaned 12,000-record subset of **The Movies Dataset**, assembled from MovieLens and TMDB metadata and released as CC0. Preparation parses genre objects, normalizes numeric and date fields, removes incomplete and duplicate entries, selects records by vote count, popularity, and rating, and writes only fields needed by the app.
+
+Poster URLs follow TMDB's documented image format and use its `w500` image size. Poster artwork requires an internet connection and a configured `TMDB_API_TOKEN`; recommendations and metadata continue to work from the local catalog. Poster lookups are cached for 24 hours to limit API traffic. This product uses the TMDB API but is not endorsed or certified by TMDB. See [TMDB](https://www.themoviedb.org/) for its data and image terms.
 
 The source dataset is not required to run the app. To rebuild the catalog, download `movies_metadata.csv` from [The Movies Dataset on Kaggle](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset), rename it to `movies_metadata_source.csv` in the project root, and run:
 
